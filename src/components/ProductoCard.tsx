@@ -1,0 +1,135 @@
+import { Ionicons } from "@expo/vector-icons";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image } from "expo-image";
+import { Producto } from "../data/productos";
+
+const NUTRI_BG_COLORS: Record<string, string> = {
+    A: "#0A6C34",
+    B: "#22C55E",
+    C: "#F59E0B",
+    D: "#EF4444",
+    E: "#991B1B",
+};
+
+type ProductoCardProps = {
+    producto: Producto;
+    onPress: () => void;
+};
+
+export default function ProductoCard({ producto, onPress }: ProductoCardProps) {
+    return(
+        <Pressable style={styles.card} onPress={onPress}>
+            <View style={styles.imageContainer}>
+                {producto.image ? (
+                    <Image
+                        source={producto.image}
+                        style={styles.image}
+                        contentFit="cover"
+                        transition={150}
+                    />
+                ) : (
+                    <View style={styles.placeholder}>
+                        <Ionicons name="restaurant-outline" size={30} color="#D1D5DB"/>
+                    </View>
+                )}
+            </View>
+
+            <View style={styles.infoContainer}>
+                <Text style={styles.name}>{producto.nombre}</Text>
+                <Text style={styles.brand}>{producto.marca}</Text>
+
+                <View style={styles.scoresRow}>
+                    <View
+                        style={[
+                        styles.nutriBox,
+                        {
+                            backgroundColor:
+                            NUTRI_BG_COLORS[producto.nutriscore] ?? "#22C55E",
+                        },
+                        ]}
+                    >
+                        <Text style={styles.nutriLabel}>NUTRI-{"\n"}SCORE {producto.nutriscore}</Text>
+                    </View>
+
+                    <View style={styles.ecoBox}>
+                        <Text style={styles.ecoLabel}>ECO-SCORE</Text>
+                        <Text style={styles.ecoValue}>{producto.ecoscore}</Text>
+                    </View>
+                </View>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#D1D5DB" />
+        </Pressable>        
+    );
+}
+
+const styles = StyleSheet.create({
+    card: {
+        backgroundColor: "white",
+        borderRadius: 18,
+        padding: 16,
+        marginBottom: 16,
+        flexDirection: "row",
+        alignItems: "center",
+        elevation: 2,
+    },
+    imageContainer: {
+        marginRight: 16,
+    },
+    image: {
+        width: 90,
+        height: 90,
+        borderRadius: 12,
+    },
+    placeholder: {
+        width: 90,
+        height: 90,
+        borderRadius: 12,
+        backgroundColor: "#F1F1F1",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    infoContainer: {
+        flex: 1,
+    },
+    name: {
+        fontSize: 18,
+        fontWeight: "700",
+        color: "#111",
+    },
+    brand: {
+        fontSize: 14,
+        color: "#6B7280",
+        marginTop: 3,
+        marginBottom: 12,
+    },
+    scoresRow: {
+        flexDirection: "row",
+        gap: 10,
+    },
+    nutriBox: {
+        minWidth: 95,
+        paddingVertical: 8,
+        paddingHorizontal: 10,
+    },
+    nutriLabel: {
+        color: "white",
+        fontSize: 12,
+        fontWeight: "800",
+    },
+    ecoBox: {
+        minWidth: 95,
+        backgroundColor: "#C9E8C0",
+        paddingVertical: 8,
+        paddingHorizontal: 10,
+    },
+    ecoLabel: {
+        color: "#416B3E",
+        fontSize: 12,
+        fontWeight: "700",
+    },
+    ecoValue: {
+        color: "#416B3E",
+        fontSize: 14,
+        fontWeight: "700",
+    },
+});
