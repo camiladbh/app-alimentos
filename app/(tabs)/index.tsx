@@ -1,59 +1,34 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { FlatList, Pressable, ScrollView, StyleSheet, Text, View, Image} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View, Image} from "react-native";
 
-import { Categoria, categorias } from "../../src/data/categorias";
-import { etiqueta } from "../../src/data/etiquetas";
-import { marcas } from "../../src/data/marcas";
 
-function CategoriaCard({ item }: { item: Categoria }) {
-  const router = useRouter();
+import HomeSection from "../../src/components/HomeSection";
+import CategoriasList from "../../src/components/home/CategoriasList";
+import EtiquetasList from "../../src/components/home/EtiquetasList";
+import MarcasList from "../../src/components/home/MarcasList";
+import { useEffect } from "react";
+import { getCategories } from "../../src/services/categories.services";
 
-  return (
-    <Pressable
-      style={styles.categoriaWrapper}
-      onPress={() =>
-        router.push({
-          pathname: "/categoria/[nombre]",
-          params: { nombre: item.id },
-        })
-      }
-    >
-      <LinearGradient  colors={item.gradientColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0.5, y: 0.5 }}
-        style={styles.categoriaCard}
-      >
-        <Text style={styles.categoriaText}>{item.nombre}</Text>
-      </LinearGradient>
-    </Pressable>
-  );
-}
-function Etiqueta({ text }: { text: string }) {
-  return (
-    <View style={styles.etiqueta}>
-      <Text style={styles.etiquetaText}>{text}</Text>
-    </View>
-  );
-}
-function MarcaCard({ name, displayName, image }: { name: string; displayName: string; image?: any }) {
-  return (
-    <View style={styles.marcaCard}>
-      <View style={styles.marcaCircle}>
-        {image ? (
-          <Image source={image} style={styles.marcaImage} />
-        ) : (
-          <Text style={styles.marcaCircleText}>{displayName}</Text>
-        )}
-      </View>
-      <Text style={styles.marcaName}>{name}</Text>
-    </View>
-  );
-}
+
 
 export default function IndexScreen() {
   const router = useRouter();
+
+  useEffect(() => {
+    async function cargarCategorias() {
+      try {
+        const categorias = await getCategories();
+        console.log("categorias desde la API:");
+        console.log(categorias);
+      }catch (error) {
+        console.error("Error al cargar categorías:", error);
+    }
+    }
+    
+    cargarCategorias();
+  }, []);
 
   return (
     <View style={styles.screen}>
@@ -73,47 +48,18 @@ export default function IndexScreen() {
         <Text style={styles.title}>
           The art of <Text style={styles.greenItalic}>conscious</Text> {"\n"}discovery.</Text>
 
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Categories</Text>
-          <Text style={styles.viewLibrary}>View Library</Text>
-        </View> 
+        <HomeSection titulo="Categories" accion="View Library">
+          <CategoriasList />
+        </HomeSection>
+
+        <HomeSection titulo="Refine by Taste">
+          <EtiquetasList />
+        </HomeSection>
+
+        <HomeSection titulo="Global Brands" subtitulo="Explored through the lens of quality.">
+          <MarcasList />
+        </HomeSection>
         
-        <FlatList
-          data={categorias}
-          renderItem={({ item }) => <CategoriaCard item={item} />}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          scrollEnabled={false}
-          columnWrapperStyle={styles.categoryRow}
-        />
-
-        <Text style={[styles.sectionTitle, styles.tasteTitle]}>
-          Refine by Taste
-        </Text>
-
-        <View style={styles.etiquetasContainer}>
-          {etiqueta.map((item) => (
-            <Etiqueta key={item} text={item} />
-          ))}
-        </View>
-
-        <Text style={[styles.sectionTitle, styles.marcaTitle]}>
-          Global Brands
-        </Text>
-        <Text style={styles.marcaSubtitle}>
-          Explored through the lens of quality.
-        </Text>
-
-        <View style={styles.marcaGrid}>
-          {marcas.map((item) => (
-            <MarcaCard
-              key={item.id}
-              name={item.name}
-              displayName={item.displayName}
-              image={item.image}
-            />
-          ))}
-        </View>
       </ScrollView>
 
     </View>
@@ -157,28 +103,21 @@ const styles = StyleSheet.create({
     color: "#007A33",
     fontStyle: "italic",
   },
-  sectionHeader: {
-    marginTop: 30,
-    marginBottom: 14,
+  
+  categoryGrid: {
     flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "space-between",
-    alignItems: "center",
-  },
-  sectionTitle: {
-    fontSize: 21,
-    fontWeight: "500",
-    color: "#111",
-  },
-  viewLibrary: {
-    fontSize: 13,
-    color: "#004D24",
+    gap: 12,
   },
   categoryRow: {
     gap: 13,
     marginBottom: 12,
   },
   categoriaWrapper: {
-    flex: 1,
+    //flex: 1,
+    width: "48%",
+    marginBottom: 12,
   },
   categoriaCard: {
     height: 185,
@@ -191,11 +130,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 15,
     fontWeight: "700",
-  },
-  tasteTitle: {
-    fontSize: 21,
-    marginTop: 30,
-  },
+  },  
   etiquetasContainer: {
     marginTop: 14,
     marginBottom: 14,
@@ -214,15 +149,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "500",
   },
-  marcaTitle: {
-    fontSize: 21,
-    marginTop: 34,
-  },
-  marcaSubtitle: {
-    marginTop: 4,
-    fontSize: 13,
-    color: "#747474",
-  },
+  
   marcaGrid: {
     marginTop: 16,
     flexDirection: "row",

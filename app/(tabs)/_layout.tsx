@@ -61,12 +61,6 @@ export default function TabsLayout() {
         }}
       />
       
-      <Tabs.Screen
-        name="categoria/[nombre]"
-        options={{
-          href: null,
-        }}
-      />
     </Tabs>
   );
 }

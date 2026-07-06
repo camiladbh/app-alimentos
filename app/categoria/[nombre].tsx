@@ -1,26 +1,43 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { FlatList, StyleSheet, Text, TextInput, View} from "react-native";
-import { productos, Producto } from "../../../src/data/productos";
-import ProductoCard from "../../../src/components/ProductoCard";
+import ProductoCard from "../../src/components/ProductoCard";
+import { useEffect, useState } from "react";
+import { searchProducts, Product, } from "../../src/services/products.services";
 
 export default function CategoriaScreen() {
     const router = useRouter();
-
+    const [productos, setProductos] = useState<Product[]>([]);
     const { nombre } = useLocalSearchParams();
 
-    const renderProducto = ({ item }: { item: Producto }) => (
+    useEffect(() => {
+      async function cargarProductos() {
+        try {
+          const respuesta = await searchProducts(String(nombre));
+
+    setProductos(respuesta.products);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      if (nombre) {
+        cargarProductos();
+      }
+    }, [nombre]);
+
+    const renderProducto = ({ item }: { item: Product }) => (
     <ProductoCard
         producto={item}
         onPress={() =>
         router.push({
             pathname: "/ficha/[id]",
-            params: { id: "oat-milk" },
-            //params: { id: item.id },
+            params: { id: item.code }
         })
         }
     />
     );
+    
      return (
     <View style={styles.screen}>
       <View style={styles.header}>
@@ -34,7 +51,7 @@ export default function CategoriaScreen() {
       <FlatList
         data={productos}
         renderItem={renderProducto}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => `${item.code}-${index}`}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
@@ -43,7 +60,7 @@ export default function CategoriaScreen() {
               {String(nombre).charAt(0).toUpperCase() + String(nombre).slice(1)}
             </Text>
 
-            <Text style={styles.subtitle}>1,248 ITEMS FOUND</Text>
+            <Text style={styles.subtitle}>{productos.length} ITEMS FOUND</Text>
 
             <View style={styles.searchContainer}>
               <Ionicons name="search" size={18} color="#9CA3AF" />

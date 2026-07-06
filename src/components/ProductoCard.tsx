@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
-import { Producto } from "../data/productos";
+import { Product } from "../services/products.services";
 
 const NUTRI_BG_COLORS: Record<string, string> = {
     A: "#0A6C34",
@@ -12,7 +12,7 @@ const NUTRI_BG_COLORS: Record<string, string> = {
 };
 
 type ProductoCardProps = {
-    producto: Producto;
+    producto: Product;
     onPress: () => void;
 };
 
@@ -20,9 +20,9 @@ export default function ProductoCard({ producto, onPress }: ProductoCardProps) {
     return(
         <Pressable style={styles.card} onPress={onPress}>
             <View style={styles.imageContainer}>
-                {producto.image ? (
+                {producto.image_url ? (
                     <Image
-                        source={producto.image}
+                        source={{ uri: producto.image_url }}
                         style={styles.image}
                         contentFit="cover"
                         transition={150}
@@ -35,8 +35,8 @@ export default function ProductoCard({ producto, onPress }: ProductoCardProps) {
             </View>
 
             <View style={styles.infoContainer}>
-                <Text style={styles.name}>{producto.nombre}</Text>
-                <Text style={styles.brand}>{producto.marca}</Text>
+                <Text style={styles.name}>{producto.product_name}</Text>
+                <Text style={styles.brand}>{producto.brands}</Text>
 
                 <View style={styles.scoresRow}>
                     <View
@@ -44,16 +44,16 @@ export default function ProductoCard({ producto, onPress }: ProductoCardProps) {
                         styles.nutriBox,
                         {
                             backgroundColor:
-                            NUTRI_BG_COLORS[producto.nutriscore] ?? "#22C55E",
+                            NUTRI_BG_COLORS[producto.nutriscore_grade] ?? "#22C55E",
                         },
                         ]}
                     >
-                        <Text style={styles.nutriLabel}>NUTRI-{"\n"}SCORE {producto.nutriscore}</Text>
+                        <Text style={styles.nutriLabel}>NUTRI-{"\n"}SCORE {producto.nutriscore_grade?.toUpperCase()}</Text>
                     </View>
 
                     <View style={styles.ecoBox}>
                         <Text style={styles.ecoLabel}>ECO-SCORE</Text>
-                        <Text style={styles.ecoValue}>{producto.ecoscore}</Text>
+                        <Text style={styles.ecoValue}>{producto.ecoscore_grade?.toUpperCase()}</Text>
                     </View>
                 </View>
             </View>

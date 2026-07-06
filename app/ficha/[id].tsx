@@ -2,18 +2,34 @@ import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View, TouchableOpacity} from "react-native";
 import { Image } from "expo-image";
-import { productos } from "../../src/data/productos";
+//import { productos } from "../../src/data/productos";
+import { useEffect, useState } from "react";
+import { getProduct, ProductDetail } from "../../src/services/product-detail.services";
 
 export default function FichaScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const [producto, setProducto] = useState<ProductDetail | null>(null);
 
-  const producto = productos.find((item) => item.id === id);
+  useEffect(() => {
+    async function cargarProducto() {
+      try {
+        const respuesta = await getProduct(String(id));
+        setProducto(respuesta.product);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    if (id) {
+      cargarProducto();
+    }
+  }, [id]);
 
   if (!producto) {
     return (
       <View style={styles.center}>
-        <Text>Producto no encontrado</Text>
+        <Text>Cargando...</Text>
       </View>
     );
   }
@@ -54,14 +70,19 @@ export default function FichaScreen() {
   );
 }
 
-function NutritionSubRow({ label, value }: { label: string; value?: string }) {
-  return (
-    <View style={styles.tableSubRow}>
-      <Text style={styles.tableSubLabel}>{label}</Text>
-      <Text style={styles.tableSubValue}>{value}</Text>
-    </View>
-  );
-}
+  function NutritionSubRow({ label, value }: { label: string; value?: string }) {
+    return (
+      <View style={styles.tableSubRow}>
+        <Text style={styles.tableSubLabel}>{label}</Text>
+        <Text style={styles.tableSubValue}>{value}</Text>
+      </View>
+    );
+  }
+  const ecoScore =
+    producto.ecoscore_grade &&
+    producto.ecoscore_grade !== "not-applicable"
+      ? producto.ecoscore_grade.toUpperCase()
+      : "-";
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
@@ -76,9 +97,9 @@ function NutritionSubRow({ label, value }: { label: string; value?: string }) {
       </View>
 
       <View style={styles.imageBox}>
-        {producto.image ? (
+        {producto.image_url ? (
           <Image
-            source={producto.image}
+            source={{ uri: producto.image_url }}
             style={styles.image}
             contentFit="contain"
             transition={200}
@@ -87,19 +108,20 @@ function NutritionSubRow({ label, value }: { label: string; value?: string }) {
           <Ionicons name="image-outline" size={80} color="#D1D5DB" />
         )}
       </View>
-
+        
       <View style={styles.productInfoCard}>
         <TouchableOpacity style={styles.heartFavButton} activeOpacity={0.8}>
           <FontAwesome name="heart" size={22} color="#1D8248" />
         </TouchableOpacity>
 
-        <Text style={styles.brand}>{producto.marca}</Text>
-        <Text style={styles.title}>{producto.nombre}</Text>
+        <Text style={styles.brand}>{producto.brands}</Text>
+        <Text style={styles.title}>{producto.product_name}</Text>
 
         <View style={styles.scoresRow}>
-          <ScoreCard label={"NUTRI-\nSCORE"} value={producto.nutriscore} color="#0A6C34" />
-          <ScoreCard label={"NOVA\nGROUP"} value={producto.nova ?? "1"} color="#F59E0B" />
-          <ScoreCard label={"ECO-\nSCORE"} value={producto.ecoscore} color="#0A6C34" />
+          <ScoreCard label={"NUTRI-\nSCORE"} value={producto.nutriscore_grade?.toUpperCase() ?? "-"} color="#0A6C34" />
+          {/*<ScoreCard label={"NOVA\nGROUP"} value={producto.nova ?? "1"} color="#F59E0B" />*/}
+          
+          <ScoreCard label={"ECO-\nSCORE"} value={ecoScore} color="#0A6C34" />
         </View>
 
         <ScrollView
@@ -107,10 +129,10 @@ function NutritionSubRow({ label, value }: { label: string; value?: string }) {
           showsHorizontalScrollIndicator={false}
           style={styles.nutrientsScroll}
         >
-          <NutrientBox label="ENERGY" value={producto.nutricion?.energia ?? "193 kJ"} />
-          <NutrientBox label="FAT" value={producto.nutricion?.grasa ?? "1.5g"} />
-          <NutrientBox label="PROTEIN" value={producto.nutricion?.proteina ?? "1.0g"} />
-          <NutrientBox label="SALT" value={producto.nutricion?.sal ?? "0.10g"} />
+          <NutrientBox label="ENERGY" value={ producto.nutriments?.energy_100g != null? `${producto.nutriments.energy_100g} kJ`: "-"  } />
+          <NutrientBox label="FAT" value={ producto.nutriments?.fat_100g != null? `${producto.nutriments.fat_100g} g`: "-"} />
+          <NutrientBox label="PROTEIN" value={ producto.nutriments?.proteins_100g != null ? `${producto.nutriments.proteins_100g} g`: "-" } />
+          <NutrientBox label="SALT" value={ producto.nutriments?.salt_100g != null? `${producto.nutriments.salt_100g} g`: "-"} />
         </ScrollView>
       </View>
 
@@ -123,22 +145,23 @@ function NutritionSubRow({ label, value }: { label: string; value?: string }) {
           </Text>
         </View>
         <Text style={styles.paragraph}>
-          {producto.ingredientes ??
-          "No ingredients information available."}
+            {producto.ingredients_text?.trim()
+            ? producto.ingredients_text
+            : "⚠ No information available"}
         </Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Nutritional Values (per 100ml)</Text>
 
-          <NutritionRow label="Energy" value={producto.nutricion?.energia} />
-          <NutritionRow label="Fat" value={producto.nutricion?.grasa} />
-          <NutritionSubRow label="— of which saturates" value={producto.nutricion?.saturadas} />
-          <NutritionRow label="Carbohydrate" value={producto.nutricion?.carbohidratos} />
-          <NutritionSubRow label="— of which sugars" value={producto.nutricion?.azucares} />
-          <NutritionRow label="Fibre" value={producto.nutricion?.fibra} />
-          <NutritionRow label="Protein" value={producto.nutricion?.proteina} />
-          <NutritionRow label="Salt" value={producto.nutricion?.sal} />
+          <NutritionRow label="Energy"  value={ producto.nutriments?.energy_100g != null ? `${producto.nutriments.energy_100g} kJ`: "-"} />
+          <NutritionRow label="Fat" value={producto.nutriments?.fat_100g != null ? `${producto.nutriments.fat_100g} g`: "-"} />
+          <NutritionSubRow label="— of which saturates" value={producto.nutriments?.saturated_fat_100g != null ? `${producto.nutriments.saturated_fat_100g} g`: "-"} />
+          <NutritionRow label="Carbohydrate" value={producto.nutriments?.carbohydrates_100g != null ? `${producto.nutriments.carbohydrates_100g} g`: "-"} />
+          <NutritionSubRow label="— of which sugars" value={producto.nutriments?.sugars_100g != null ? `${producto.nutriments.sugars_100g} g`: "-"} />
+          <NutritionRow label="Fibre" value={producto.nutriments?.fiber_100g != null ? `${producto.nutriments.fiber_100g} g`: "-"} />
+          <NutritionRow label="Protein" value={producto.nutriments?.proteins_100g != null ? `${producto.nutriments.proteins_100g} g`: "-"} />
+          <NutritionRow label="Salt" value={producto.nutriments?.salt_100g != null ? `${producto.nutriments.salt_100g} g`: "-"} />
       </View>
       
     </ScrollView>
