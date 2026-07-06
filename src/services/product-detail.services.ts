@@ -24,15 +24,13 @@ export interface ProductDetail {
     };
 }
 
-export async function getProduct(code: string) {
-     const url = `${BASE_URL}/v2/product/${code}`;
-    console.log(url);
+export async function getProduct(code: string): Promise<ProductDetail> {
     const response = await fetch(
         `${BASE_URL}/v2/product/${code}`,
         {
-        headers: {
-            "User-Agent": "UNTDF TNT 2026",
-        },
+            headers: {
+                "User-Agent": "UNTDF TNT 2026",
+            },
         }
     );
 
@@ -40,5 +38,7 @@ export async function getProduct(code: string) {
         throw new Error("No se pudo obtener el producto");
     }
 
-    return (await response.json()) as ProductDetailResponse;
+    const data = (await response.json()) as ProductDetailResponse;
+
+    return data.product;
 }

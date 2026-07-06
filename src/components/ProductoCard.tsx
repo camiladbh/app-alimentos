@@ -17,6 +17,20 @@ type ProductoCardProps = {
 };
 
 export default function ProductoCard({ producto, onPress }: ProductoCardProps) {
+    const nutriScore =
+    !producto.nutriscore_grade ||
+    producto.nutriscore_grade === "unknown" ||
+    producto.nutriscore_grade === "not-applicable"
+        ? "-"
+        : producto.nutriscore_grade.toUpperCase();
+
+    const ecoScore =
+    !producto.ecoscore_grade ||
+    producto.ecoscore_grade === "unknown" ||
+    producto.ecoscore_grade === "not-applicable"
+        ? "-"
+        : producto.ecoscore_grade.toUpperCase();
+
     return(
         <Pressable style={styles.card} onPress={onPress}>
             <View style={styles.imageContainer}>
@@ -48,12 +62,12 @@ export default function ProductoCard({ producto, onPress }: ProductoCardProps) {
                         },
                         ]}
                     >
-                        <Text style={styles.nutriLabel}>NUTRI-{"\n"}SCORE {producto.nutriscore_grade?.toUpperCase()}</Text>
+                        <Text style={styles.nutriLabel}>NUTRI-{"\n"}SCORE {nutriScore}</Text>
                     </View>
 
                     <View style={styles.ecoBox}>
                         <Text style={styles.ecoLabel}>ECO-SCORE</Text>
-                        <Text style={styles.ecoValue}>{producto.ecoscore_grade?.toUpperCase()}</Text>
+                        <Text style={styles.ecoValue}>{ecoScore}</Text>
                     </View>
                 </View>
             </View>

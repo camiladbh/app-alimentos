@@ -8,15 +8,15 @@ import HomeSection from "../../src/components/HomeSection";
 import CategoriasList from "../../src/components/home/CategoriasList";
 import EtiquetasList from "../../src/components/home/EtiquetasList";
 import MarcasList from "../../src/components/home/MarcasList";
-import { useEffect } from "react";
-import { getCategories } from "../../src/services/categories.services";
+//import { useEffect } from "react";
+//import { getCategories } from "../../src/services/categories.services";
 
 
 
 export default function IndexScreen() {
   const router = useRouter();
 
-  useEffect(() => {
+  /*useEffect(() => {
     async function cargarCategorias() {
       try {
         const categorias = await getCategories();
@@ -28,7 +28,7 @@ export default function IndexScreen() {
     }
     
     cargarCategorias();
-  }, []);
+  }, []);*/
 
   return (
     <View style={styles.screen}>

@@ -2,7 +2,6 @@ import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View, TouchableOpacity} from "react-native";
 import { Image } from "expo-image";
-//import { productos } from "../../src/data/productos";
 import { useEffect, useState } from "react";
 import { getProduct, ProductDetail } from "../../src/services/product-detail.services";
 
@@ -14,8 +13,8 @@ export default function FichaScreen() {
   useEffect(() => {
     async function cargarProducto() {
       try {
-        const respuesta = await getProduct(String(id));
-        setProducto(respuesta.product);
+        const producto = await getProduct(String(id));
+        setProducto(producto);
       } catch (error) {
         console.error(error);
       }
@@ -83,6 +82,11 @@ export default function FichaScreen() {
     producto.ecoscore_grade !== "not-applicable"
       ? producto.ecoscore_grade.toUpperCase()
       : "-";
+  const nutriScore =
+    producto.nutriscore_grade &&
+    producto.nutriscore_grade !== "unknown"
+      ? producto.nutriscore_grade.toUpperCase()
+      : "-";
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
@@ -118,7 +122,7 @@ export default function FichaScreen() {
         <Text style={styles.title}>{producto.product_name}</Text>
 
         <View style={styles.scoresRow}>
-          <ScoreCard label={"NUTRI-\nSCORE"} value={producto.nutriscore_grade?.toUpperCase() ?? "-"} color="#0A6C34" />
+          <ScoreCard label={"NUTRI-\nSCORE"} value={nutriScore} color="#0A6C34" />
           {/*<ScoreCard label={"NOVA\nGROUP"} value={producto.nova ?? "1"} color="#F59E0B" />*/}
           
           <ScoreCard label={"ECO-\nSCORE"} value={ecoScore} color="#0A6C34" />
