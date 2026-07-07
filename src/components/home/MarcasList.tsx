@@ -1,5 +1,6 @@
 import { marcas } from "../../data/marcas";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 function MarcaCard({
   name,
@@ -10,8 +11,20 @@ function MarcaCard({
   displayName: string;
   image?: any;
 }) {
+  const router = useRouter();
+
   return (
-    <View style={styles.marcaCard}>
+    <Pressable
+      style={styles.marcaCard}
+      onPress={() =>
+        router.push({
+          pathname: "/marca/[nombre]",
+          params: {
+            nombre: name,
+          },
+        })
+      }
+    >
       <View style={styles.marcaCircle}>
         {image ? (
           <Image source={image} style={styles.marcaImage} />
@@ -21,7 +34,7 @@ function MarcaCard({
       </View>
 
       <Text style={styles.marcaName}>{name}</Text>
-    </View>
+    </Pressable>
   );
 }
 

@@ -1,30 +1,61 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { FlatList, StyleSheet, Text, TextInput, View} from "react-native";
+import { FlatList, StyleSheet, Text, TextInput, View, Pressable} from "react-native";
 import ProductoCard from "../../src/components/ProductoCard";
 import { useEffect, useState } from "react";
-import { searchProducts, Product, } from "../../src/services/products.services";
+import {
+  searchProductsByCategory,
+  Product,
+} from "../../src/services/products.services";
 
 export default function CategoriaScreen() {
     const router = useRouter();
     const [productos, setProductos] = useState<Product[]>([]);
     const { nombre } = useLocalSearchParams();
+    const [page, setPage] = useState(1);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [totalResultados, setTotalResultados] = useState(0);
 
     useEffect(() => {
       async function cargarProductos() {
         try {
-          const respuesta = await searchProducts(String(nombre));
+          const respuesta = await searchProductsByCategory(String(nombre), 1);
 
-    setProductos(respuesta.products);
+          setProductos(respuesta.products);
+          setTotalResultados(respuesta.count);
+          setPage(2);
         } catch (error) {
-          console.error(error);
-        }
+            console.error(error);
+          }
       }
 
       if (nombre) {
         cargarProductos();
       }
     }, [nombre]);
+
+    async function cargarMas() {
+      if (loadingMore) return;
+
+      setLoadingMore(true);
+
+      try {
+        const respuesta = await searchProductsByCategory(
+          String(nombre),
+          page
+        );
+
+        if (respuesta.products.length > 0) {
+          setProductos(prev => [...prev, ...respuesta.products]);
+          setPage(prev => prev + 1);
+        }
+
+      } catch (error) {
+        console.log("No se pudieron cargar más productos");
+      } finally {
+        setLoadingMore(false);
+      }
+    }
 
     const renderProducto = ({ item }: { item: Product }) => (
     <ProductoCard
@@ -41,7 +72,14 @@ export default function CategoriaScreen() {
      return (
     <View style={styles.screen}>
       <View style={styles.header}>
-        <Ionicons name="menu" size={24} color="#004D24" />
+        <Pressable onPress={() => router.back()}>
+          <Ionicons
+            name="chevron-back"
+            size={30}
+            color="#004D24"
+          />
+        </Pressable>
+
 
         <Text style={styles.logo}>Digital Epicurean</Text>
 
@@ -54,13 +92,15 @@ export default function CategoriaScreen() {
         keyExtractor={(item, index) => `${item.code}-${index}`}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        onEndReached={cargarMas}
+        onEndReachedThreshold={0.5}
         ListHeaderComponent={
           <>
             <Text style={styles.title}>
               {String(nombre).charAt(0).toUpperCase() + String(nombre).slice(1)}
             </Text>
 
-            <Text style={styles.subtitle}>{productos.length} ITEMS FOUND</Text>
+            <Text style={styles.subtitle}>{totalResultados} ITEMS FOUND</Text>
 
             <View style={styles.searchContainer}>
               <Ionicons name="search" size={18} color="#9CA3AF" />
