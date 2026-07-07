@@ -20,12 +20,18 @@ export default function HomeSection({
           subtitulo={subtitulo}
           accion={accion}
       />
-            {children}
+        <View style={styles.content}>
+          {children}
+        </View>
+            
     </View>
   );
 }
 const styles = StyleSheet.create({
   container: {
     marginTop: 30,
+  },
+  content: {
+    marginTop: 16, 
   },
 });

@@ -1,10 +1,26 @@
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { Ionicons, FontAwesome, MaterialCommunityIcons, } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View, TouchableOpacity} from "react-native";
 import { Image } from "expo-image";
 import { useEffect, useState } from "react";
 import { getProduct, ProductDetail } from "../../src/services/product-detail.services";
 
+const NUTRI_BG_COLORS: Record<string, string> = {
+  A: "#00843D",
+  B: "#4CAF50",
+  C: "#FBC02D",
+  D: "#FB8C00",
+  E: "#E53935",
+};
+
+const ECO_BG_COLORS: Record<string, string> = {
+  "A+": "#00843D",
+  A: "#1FA34A",
+  B: "#8BC34A",
+  C: "#FBC02D",
+  D: "#FB8C00",
+  E: "#E53935",
+};
 export default function FichaScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
@@ -37,16 +53,34 @@ export default function FichaScreen() {
     label,
     value,
     color,
+    eco= false,
   }: {
     label: string;
     value?: string;
     color: string;
+    eco?: boolean;
   }) {
     return (
       <View style={styles.scoreCard}>
         <Text style={styles.scoreLabel}>{label}</Text>
-        <View style={[styles.scoreBadge, { backgroundColor: color }]}>
-          <Text style={styles.scoreBadgeText}>{value}</Text>
+        <View
+          style={[
+            styles.scoreBadge,
+            { backgroundColor: color },
+          ]}
+        >
+          {eco && (
+            <MaterialCommunityIcons
+              name="leaf"
+              size={12}
+              color="white"
+              style={{ marginBottom: 2 }}
+            />
+          )}
+
+          <Text style={styles.scoreBadgeText}>
+            {value}
+          </Text>
         </View>
       </View>
     );
@@ -122,10 +156,10 @@ export default function FichaScreen() {
         <Text style={styles.title}>{producto.product_name}</Text>
 
         <View style={styles.scoresRow}>
-          <ScoreCard label={"NUTRI-\nSCORE"} value={nutriScore} color="#0A6C34" />
+          <ScoreCard label={"NUTRI-\nSCORE"} value={nutriScore} color={NUTRI_BG_COLORS[nutriScore] ?? "#D1D5DB"} />
           {/*<ScoreCard label={"NOVA\nGROUP"} value={producto.nova ?? "1"} color="#F59E0B" />*/}
           
-          <ScoreCard label={"ECO-\nSCORE"} value={ecoScore} color="#0A6C34" />
+          <ScoreCard label={"ECO-\nSCORE"} value={ecoScore} color={ECO_BG_COLORS[ecoScore] ?? "#D1D5DB"} eco />
         </View>
 
         <ScrollView
@@ -156,7 +190,7 @@ export default function FichaScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Nutritional Values (per 100ml)</Text>
+        <Text style={styles.sectionTitle}>Nutritional Values</Text>
 
           <NutritionRow label="Energy"  value={ producto.nutriments?.energy_100g != null ? `${producto.nutriments.energy_100g} kJ`: "-"} />
           <NutritionRow label="Fat" value={producto.nutriments?.fat_100g != null ? `${producto.nutriments.fat_100g} g`: "-"} />

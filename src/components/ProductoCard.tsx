@@ -3,12 +3,28 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { Product } from "../services/products.services";
 
-const NUTRI_BG_COLORS: Record<string, string> = {
+/*const NUTRI_BG_COLORS: Record<string, string> = {
     A: "#0A6C34",
     B: "#22C55E",
     C: "#F59E0B",
     D: "#EF4444",
     E: "#991B1B",
+};*/
+const NUTRI_BG_COLORS: Record<string, string> = {
+  A: "#00843D",
+  B: "#4CAF50",
+  C: "#FBC02D",
+  D: "#FB8C00",
+  E: "#E53935",
+};
+
+const ECO_BG_COLORS: Record<string, string> = {
+  "A+": "#00843D",
+  A: "#1FA34A",
+  B: "#8BC34A",
+  C: "#FBC02D",
+  D: "#FB8C00",
+  E: "#E53935",
 };
 
 type ProductoCardProps = {
@@ -65,10 +81,30 @@ export default function ProductoCard({ producto, onPress }: ProductoCardProps) {
                         <Text style={styles.nutriLabel}>NUTRI-{"\n"}SCORE {nutriScore}</Text>
                     </View>
 
-                    <View style={styles.ecoBox}>
-                        <Text style={styles.ecoLabel}>ECO-SCORE</Text>
-                        <Text style={styles.ecoValue}>{ecoScore}</Text>
-                    </View>
+                    <View
+                        style={[
+                            styles.ecoBox,
+                            {
+                            backgroundColor: ECO_BG_COLORS[ecoScore] ?? "#D1D5DB",
+                            },
+                        ]}
+                        >
+                        <View style={styles.ecoRow}>
+                            <Ionicons
+                            name="leaf"
+                            size={12}
+                            color="white"
+                            />
+
+                            <Text style={styles.ecoValue}>
+                            {ecoScore}
+                            </Text>
+                        </View>
+
+                        <Text style={styles.ecoLabel}>
+                            ECO-SCORE
+                        </Text>
+                        </View>
                 </View>
             </View>
             <Ionicons name="chevron-forward" size={24} color="#D1D5DB" />
@@ -136,14 +172,25 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         paddingHorizontal: 10,
     },
-    ecoLabel: {
-        color: "#416B3E",
-        fontSize: 12,
-        fontWeight: "700",
+    
+    ecoRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 4,
+        marginBottom: 4,
     },
+
     ecoValue: {
-        color: "#416B3E",
-        fontSize: 14,
-        fontWeight: "700",
+    color: "white",
+    fontSize: 15,
+    fontWeight: "800",
+    },
+
+    ecoLabel: {
+    color: "white",
+    fontSize: 10,
+    fontWeight: "700",
+    textAlign: "center",
     },
 });

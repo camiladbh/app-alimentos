@@ -17,22 +17,21 @@ export default function BuscarScreen() {
   const [totalResultados, setTotalResultados] = useState(0);
   
 
-  async function buscar() {
-    setPage(1);
-    
-    if (!texto.trim()) return;
-     console.log("Buscando:", texto);
+  async function buscar(valor = texto) {
+  setPage(1);
 
-    try {
-      const respuesta = await searchProducts(texto);
-      setProductos(respuesta.products ?? []);
-      setTotalResultados(respuesta.count ?? 0);
-      setPage(2);
-      console.log("Respuesta:", respuesta);
-    } catch (error) {
-      console.error(error);
-    }
+  if (!valor.trim()) return;
+
+  try {
+    const respuesta = await searchProducts(valor);
+
+    setProductos(respuesta.products ?? []);
+    setTotalResultados(respuesta.count ?? 0);
+    setPage(2);
+  } catch (error) {
+    console.error(error);
   }
+}
 
   async function cargarMas() {
     if (loadingMore) return;
@@ -87,8 +86,17 @@ export default function BuscarScreen() {
           style={styles.input}
           placeholder="Search..."
           value={texto}
-          onChangeText={setTexto}
-          onSubmitEditing={buscar}
+          onChangeText={(value) => {
+            setTexto(value);
+
+            if (value.trim().length >= 2) {
+              buscar(value);
+            } else {
+              setProductos([]);
+              setTotalResultados(0);
+            }
+          }}
+          onSubmitEditing={() => buscar(texto)}
           returnKeyType="search"
         />
         <Pressable onPress={() => router.push("/camara")}>

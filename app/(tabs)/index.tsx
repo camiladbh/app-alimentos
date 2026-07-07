@@ -1,34 +1,16 @@
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text, View, Image} from "react-native";
+import {  ScrollView, StyleSheet, Text, View} from "react-native";
 
 
 import HomeSection from "../../src/components/HomeSection";
 import CategoriasList from "../../src/components/home/CategoriasList";
 import EtiquetasList from "../../src/components/home/EtiquetasList";
 import MarcasList from "../../src/components/home/MarcasList";
-//import { useEffect } from "react";
-//import { getCategories } from "../../src/services/categories.services";
-
 
 
 export default function IndexScreen() {
   const router = useRouter();
-
-  /*useEffect(() => {
-    async function cargarCategorias() {
-      try {
-        const categorias = await getCategories();
-        console.log("categorias desde la API:");
-        console.log(categorias);
-      }catch (error) {
-        console.error("Error al cargar categorías:", error);
-    }
-    }
-    
-    cargarCategorias();
-  }, []);*/
 
   return (
     <View style={styles.screen}>
